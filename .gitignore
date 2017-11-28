@@ -30,3 +30,6 @@ server.pid
 .idea/*
 conf/evolutions/default/1.sql
 .g8/
+*.idea/
+*.pyc
+*.csv
