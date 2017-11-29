@@ -6,12 +6,15 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.util.ClientUtils;
+import play.Logger;
 import solr.SolrI;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 
 public class SolrImpl implements SolrI {
@@ -81,7 +84,77 @@ public class SolrImpl implements SolrI {
         Product product = new Product();
         List<Product> products = new ArrayList<>();
         products.add(product);
+
+        getQueryString(keyword);
+
         return products;
+    }
+
+    protected String getQueryString(String keyword) {
+        List<String> fromFields = config.getStringList("solr.query.from.fl");
+        StringBuilder sb = new StringBuilder();
+        String[] kws = keyword.split("(　|\\s)+");
+        int i = 0, j = 0;
+        String escaped;
+        Logger.debug("origin keyword: " + keyword);
+        for (String fl : fromFields) {
+            i = 0;
+            if (kws.length > 0) {
+                sb.append("(");
+            }
+            for (String kw : kws) {
+                // todo
+                // must test for
+                // blanks in middle, head, and tail.
+                escaped = processKeyword(kw.trim());
+                Logger.debug("escaped keyword: " + escaped);
+                sb.append(fl + ":*" + escaped + "*");
+                if ( i != kws.length - 1) {
+                    sb.append(" AND ");
+                }
+                i++;
+            }
+            if (kws.length > 0) {
+                sb.append(")");
+            }
+
+            if ( j != fromFields.size() - 1) {
+                sb.append(" OR ");
+            }
+            j++;
+        }
+
+        Logger.debug("after keyword: " + sb.toString());
+        return sb.toString();
+    }
+
+    /**
+     * TODO
+     * we need to consider multi blanks.
+     *
+     * @param keyword
+     * @return
+     */
+    protected String processKeyword(String keyword) {
+        keyword = keyword.trim();
+        if (keyword == null || keyword.isEmpty()) {
+            return "*";
+        } else {
+            return escapeSpecialChars(keyword);
+        }
+    }
+
+    protected String escapeSpecialChars(String keyword) {
+//        val reg = """([\+\-\^\{\}\|\"\~\*\?\&\:\;\/\!\[\]\(\)]|\\)""".r
+//        val rep = """\\$1"""
+//        val kw = reg.replaceAllIn(keyword, rep)
+//        String pattern = "([+-^{}|\\"~*?&:;/!\[\]\(\)|\\])";
+//        String rep = "\\$1";
+//        String result = pattern.replaceAll(keyword, rep);
+//        Logger.debug("orignal keyword:" + keyword);
+//        Logger.debug("keyword:" + result);
+
+        return ClientUtils.escapeQueryChars(keyword);
     }
 
     @Override
@@ -129,7 +202,8 @@ public class SolrImpl implements SolrI {
      */
     public List<Product> searchProductByName(String name, int start, String sort, int order, String... fq) {
         SolrQuery query = new SolrQuery();
-        query.setQuery("name:" + name);
+//        query.setQuery("name:" + name);
+        query.setQuery(getQueryString(name));
 
         // 筛选
         query.setFilterQueries(fq);

@@ -26,7 +26,7 @@ public class Product {
     @Field
     public String url;
 
-    @Field("kbj_cate_num")
+    @Field("kbj_cate_name")
     public String kbjCateName;
 
     @Field("kbj_cate_id")
