@@ -1,16 +1,19 @@
 package models.entities;
 
 import io.ebean.Model;
-import io.ebean.annotation.CreatedTimestamp;
 import io.ebean.annotation.Transactional;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import java.util.Date;
 
+/**
+ *  @author yue-yao
+ *  @date 2017/11/24
+ */
 @MappedSuperclass
 public class BaseModel extends Model {
-   private static final long serialVersionUID = 1658731911988408622L;
+   private static final long serialVersionUID = 1L;
 
    @Column(nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
    public Date createDate;
