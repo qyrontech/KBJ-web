@@ -14,6 +14,8 @@ import java.util.concurrent.CompletionStage;
 /**
  * This controller contains an action to handle HTTP requests
  * to the application's home page.
+ *  @author yue-yao
+ *  @date 2017/11/24
  */
 public class HomeController extends Controller {
 
@@ -148,7 +150,6 @@ public class HomeController extends Controller {
     }
 
     public CompletionStage<Result> list() {
-        System.out.println("3333333333s");
         return keySearchRepository.list().thenApplyAsync(list -> {
             return ok(views.html.keySearch.render(list));
         }, httpExecutionContext.current());
@@ -158,7 +159,6 @@ public class HomeController extends Controller {
         Form<KeySearch> KeySearchAdd = formFactory.form(KeySearch.class);
         Form<KeySearch> keySearchForm = formFactory.form(KeySearch.class).bindFromRequest();
         if (keySearchForm.hasErrors()) {
-            System.out.println("444444444");
             return keySearchRepository.getRow(id).thenApplyAsync(row -> {
                 return badRequest(views.html.edit.render(KeySearchAdd, keySearchForm, id));
             }, httpExecutionContext.current());
@@ -177,7 +177,6 @@ public class HomeController extends Controller {
     }
 
     public CompletionStage<Result> add() {
-        System.out.println(11111111);
         long a = 1;
         Form<KeySearch> keySearchForm = formFactory.form(KeySearch.class);
         Form<KeySearch> KeySearchAdd = formFactory.form(KeySearch.class).bindFromRequest();
