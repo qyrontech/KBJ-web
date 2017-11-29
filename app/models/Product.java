@@ -62,16 +62,16 @@ public class Product {
     @Field
     public String img4;
 
-    @Field("img1Max")
+    @Field("img1_max")
     public String img1Max;
 
-    @Field("img2Max")
+    @Field("img2_max")
     public String img2Max;
 
-    @Field("img3Max")
+    @Field("img3_max")
     public String img3Max;
 
-    @Field("img4Max")
+    @Field("img4_max")
     public String img4Max;
 
     @Field
