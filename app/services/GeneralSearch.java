@@ -19,8 +19,8 @@ public class GeneralSearch {
      * just for test
      * @return
      */
-    public static List<Product> query() {
-        List<Product> products = solr.searchProductByName("*",0, "name", 1, "id:jd_1*", "price:[1 TO 10]");
+    public List<Product> query() {
+        List<Product> products = solr.searchProductByName("*",0, "name", 1, "price:[1 TO 1000]");
         return products;
     }
 }

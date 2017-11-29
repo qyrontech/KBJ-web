@@ -5,154 +5,192 @@ import org.apache.solr.client.solrj.beans.Field;
 import play.data.validation.Constraints;
 
 import javax.persistence.Entity;
+import java.util.Formatter;
 
 //@Entity
 //public class Product extends Model {
 public class Product {
 
-    /**
-     *
-     */
-    @Field("category_url")
-    private String categoryUrl;
+    @Field
+    public String mall;
 
-    /**
-     *
-     */
+    @Field("sku_id")
+    public String skuid;
+
+    @Field("item_id")
+    public String itemId;
+
+    @Field
+    public String name;
+
+    @Field
+    public String url;
+
+    @Field("kbj_cate_num")
+    public String kbjCateName;
+
+    @Field("kbj_cate_id")
+    public String kbjCateId;
+
+    @Field("mall_cate_url")
+    public String mallCateUrl;
+
+    @Field
+    public float price;
+
+    @Field("ref_price")
+    public float refPrice;
+
+    @Field("sales_num")
+    public String salesNum;
+
+    @Field("comments_num")
+    public String commentsNum;
+
+    @Field("stock_status")
+    public String stockStatus;
+
+    @Field
+    public String img1;
+
+    @Field
+    public String img2;
+
+    @Field
+    public String img3;
+
+    @Field
+    public String img4;
+
+    @Field("img1Max")
+    public String img1Max;
+
+    @Field("img2Max")
+    public String img2Max;
+
+    @Field("img3Max")
+    public String img3Max;
+
+    @Field("img4Max")
+    public String img4Max;
+
+    @Field
+    public String specs;
+
+    @Field
+    public String shop;
+
+    @Field("shop_url")
+    public String shopUrl;
+
+    @Field("is_self_support")
+    public boolean selfSupport;
+
     @Field
     private String date;
 
-    /**
-     *
-     */
-    //@Constraints.Required
-    @Field
-    private String id;
-
-    /**
-     *
-     */
-    @Field
-    private String img1;
-
-    /**
-     *
-     */
-    @Field
-    private String img2;
-
-    /**
-     *
-     */
-    @Field
-    private String img3;
-
-    /**
-     *
-     */
-    @Field
-    private String img4;
-
-    /**
-     *
-     */
-    @Field("img1_max")
-    private String img1Max;
-
-    /**
-     *
-     */
-    @Field("img2_max")
-    private String img2Max;
-
-    /**
-     *
-     */
-    @Field("img3_max")
-    private String img3Max;
-
-    /**
-     *
-     */
-    @Field("img4_max")
-    private String img4Max;
-
-    /**
-     *
-     */
-    @Field("is_self_support")
-    private boolean isSelfSupport;
-
-    /**
-     *
-     */
-    @Field
-    private String name;
-
-    /**
-     *
-     */
-    @Field("origin_id")
-    private String originId;
-
-    /**
-     *
-     */
-    @Field
-    private double price;
-
-    /**
-     *
-     */
-    @Field
-    private String params;
-
-    /**
-     *
-     */
-    @Field("shop_name")
-    private String shopName;
-
-    /**
-     *
-     */
-    @Field("shop_url")
-    private String shopUrl;
-
-    /**
-     *
-     */
-    @Field
-    private String type;
-
-    /**
-     *
-     */
-    @Field
-    private String url;
-
-    public String getCategoryUrl() {
-        return categoryUrl;
+    public String getMall() {
+        return mall;
     }
 
-    public void setCategoryUrl(String categoryUrl) {
-        this.categoryUrl = categoryUrl;
+    public void setMall(String mall) {
+        this.mall = mall;
     }
 
-    public String getDate() {
-        return date;
+    public String getSkuid() {
+        return skuid;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setSkuid(String skuid) {
+        this.skuid = skuid;
     }
 
-    public String getId() {
-        return id;
+    public String getItemId() {
+        return itemId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setItemId(String itemId) {
+        this.itemId = itemId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getKbjCateName() {
+        return kbjCateName;
+    }
+
+    public void setKbjCateName(String kbjCateName) {
+        this.kbjCateName = kbjCateName;
+    }
+
+    public String getKbjCateId() {
+        return kbjCateId;
+    }
+
+    public void setKbjCateId(String kbjCateId) {
+        this.kbjCateId = kbjCateId;
+    }
+
+    public String getMallCateUrl() {
+        return mallCateUrl;
+    }
+
+    public void setMallCateUrl(String mallCateUrl) {
+        this.mallCateUrl = mallCateUrl;
+    }
+
+    public float getPrice() {
+        return price;
+    }
+
+    public void setPrice(float price) {
+        this.price = price;
+    }
+
+    public float getRefPrice() {
+        return refPrice;
+    }
+
+    public void setRefPrice(float refPrice) {
+        this.refPrice = refPrice;
+    }
+
+    public String getSalesNum() {
+        return salesNum;
+    }
+
+    public void setSalesNum(String salesNum) {
+        this.salesNum = salesNum;
+    }
+
+    public String getCommentsNum() {
+        return commentsNum;
+    }
+
+    public void setCommentsNum(String commentsNum) {
+        this.commentsNum = commentsNum;
+    }
+
+    public String getStockStatus() {
+        return stockStatus;
+    }
+
+    public void setStockStatus(String stockStatus) {
+        this.stockStatus = stockStatus;
     }
 
     public String getImg1() {
@@ -219,52 +257,20 @@ public class Product {
         this.img4Max = img4Max;
     }
 
-    public boolean isSelfSupport() {
-        return isSelfSupport;
+    public String getSpecs() {
+        return specs;
     }
 
-    public void setSelfSupport(boolean selfSupport) {
-        isSelfSupport = selfSupport;
+    public void setSpecs(String specs) {
+        this.specs = specs;
     }
 
-    public String getName() {
-        return name;
+    public String getShop() {
+        return shop;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getOriginId() {
-        return originId;
-    }
-
-    public void setOriginId(String originId) {
-        this.originId = originId;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public String getParams() {
-        return params;
-    }
-
-    public void setParams(String params) {
-        this.params = params;
-    }
-
-    public String getShopName() {
-        return shopName;
-    }
-
-    public void setShopName(String shopName) {
-        this.shopName = shopName;
+    public void setShop(String shop) {
+        this.shop = shop;
     }
 
     public String getShopUrl() {
@@ -275,19 +281,20 @@ public class Product {
         this.shopUrl = shopUrl;
     }
 
-    public String getType() {
-        return type;
+    public boolean isSelfSupport() {
+        return selfSupport;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setSelfSupport(boolean selfSupport) {
+        this.selfSupport = selfSupport;
     }
 
-    public String getUrl() {
-        return url;
+    public String getString() {
+        return date;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setString(String date) {
+        this.date = date;
     }
+
 }

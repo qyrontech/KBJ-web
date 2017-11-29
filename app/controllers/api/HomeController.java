@@ -30,7 +30,7 @@ public class HomeController extends Controller {
         List<Product> products = searcher.query();
         Logger.debug("-----------solr: " + products.size());
         for (Product product : products) {
-            Logger.debug(product.getId() + " : " + product.getName() + " : " + product.getPrice());
+            Logger.debug(product.getSkuid() + " : " + product.getName() + " : " + product.getPrice());
         }
 
         return ok(Json.toJson(products));

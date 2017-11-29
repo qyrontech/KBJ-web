@@ -146,7 +146,7 @@ public class SolrImpl implements SolrI {
         }
 
         // 指定查询结果返回哪些字段
-        query.setFields("id", "name", "price", "type", "img1", "url");
+        //query.setFields("sku_id", "name", "price", "type", "img1", "url");
 
         return getProducts(PRODUCTS, query);
     }
@@ -158,7 +158,7 @@ public class SolrImpl implements SolrI {
      */
     public Product searchProductById(String id) {
         SolrQuery query = new SolrQuery();
-        query.setQuery("id:" + id);
+        query.setQuery("skuid:" + id);
 
         return getProducts(PRODUCTS, query).get(0);
     }
