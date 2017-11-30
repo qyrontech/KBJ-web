@@ -8,13 +8,14 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import play.Logger;
-import solr.SolrI;
+import play.libs.F;
+import solr.params.KeywordHelper;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
+import java.util.Map;
 
 
 public class SolrImpl implements SolrI {
@@ -37,35 +38,41 @@ public class SolrImpl implements SolrI {
      * echoParams	指定响应头部包含哪些参数，取值为none/all/explicit(默认值)
      */
 
-    private final static String SERVER_CONF_KEY = "solr.server";
-    private final static String SHARDS_CONF_KEY = "solr.shards";
-    private final static String CONN_TIMEOUT_CONF_KEY = "solr.connection.timeout";
-    private final static String SOCKET_TIMEOUT_CONF_KEY = "solr.socket.timeout";
+//    private final static String SERVER_CONF_KEY = "solr.server";
+//    private final static String SHARDS_CONF_KEY = "solr.shards";
+//    private final static String CONN_TIMEOUT_CONF_KEY = "solr.connection.timeout";
+//    private final static String SOCKET_TIMEOUT_CONF_KEY = "solr.socket.timeout";
 
     // 分页，每页显示数量的默认值
     private final static int DEFAULT_QUERY_ROWS = 10;
     private final static String PRODUCTS = "products";
 
-    private static String server;
-    private static List<String> shards;
     private static HttpSolrClient solrClient;
-    private static int connectionTimeout;
-    private static int socketTimeout;
+//    private static String server;
+//    private static List<String> shards;
+//    private static int connectionTimeout;
+//    private static int socketTimeout;
 
 
     private final Config config;
+    private final KeywordHelper keywordHelper;
 
     @Inject
-    public SolrImpl(Config config) {
+    public SolrImpl(Config config, KeywordHelper keywordHelper) {
         this.config = config;
+        this.keywordHelper = keywordHelper;
         init();
     }
 
     protected void init() {
-        server = this.config.getString(SERVER_CONF_KEY);
-        shards = this.config.getStringList(SHARDS_CONF_KEY);
-        connectionTimeout = this.config.getInt(CONN_TIMEOUT_CONF_KEY);
-        socketTimeout = this.config.getInt(SOCKET_TIMEOUT_CONF_KEY);
+//        String server = this.config.getString(SERVER_CONF_KEY);
+//        List<String> shards = this.config.getStringList(SHARDS_CONF_KEY);
+//        int connectionTimeout = this.config.getInt(CONN_TIMEOUT_CONF_KEY);
+//        int socketTimeout = this.config.getInt(SOCKET_TIMEOUT_CONF_KEY);
+        String server = this.config.getString("solr.server");
+        List<String> shards = this.config.getStringList("solr.shards");
+        int connectionTimeout = this.config.getInt("solr.connection.timeout");
+        int socketTimeout = this.config.getInt("solr.socket.timeout");
 
         this.solrClient = new HttpSolrClient.Builder(server)
                 .withConnectionTimeout(connectionTimeout)
@@ -75,87 +82,28 @@ public class SolrImpl implements SolrI {
 
     // TODO
     // should we release the solr connection?
-    // or there is a pool mechanism in solr connection?
-
-
 
     @Override
-    public List<Product> query(String keyword, int start, int rows, String sort, String fq) {
-        Product product = new Product();
-        List<Product> products = new ArrayList<>();
-        products.add(product);
+    public List<Product> query(String keyword, int start, int rows, List<F.Tuple<String, Integer>> sorters, String fq) {
 
-        getQueryString(keyword);
+        SolrQuery query = new SolrQuery();
 
-        return products;
-    }
-
-    protected String getQueryString(String keyword) {
-        List<String> fromFields = config.getStringList("solr.query.from.fl");
-        StringBuilder sb = new StringBuilder();
-        String[] kws = keyword.split("(　|\\s)+");
-        int i = 0, j = 0;
-        String escaped;
-        Logger.debug("origin keyword: " + keyword);
-        for (String fl : fromFields) {
-            i = 0;
-            if (kws.length > 0) {
-                sb.append("(");
-            }
-            for (String kw : kws) {
-                // todo
-                // must test for
-                // blanks in middle, head, and tail.
-                escaped = processKeyword(kw.trim());
-                Logger.debug("escaped keyword: " + escaped);
-                sb.append(fl + ":*" + escaped + "*");
-                if ( i != kws.length - 1) {
-                    sb.append(" AND ");
-                }
-                i++;
-            }
-            if (kws.length > 0) {
-                sb.append(")");
-            }
-
-            if ( j != fromFields.size() - 1) {
-                sb.append(" OR ");
-            }
-            j++;
+        query.setQuery(keywordHelper.getQueryString(keyword));
+        query.setStart(start);
+        if (rows == 0) {
+            query.setRows(DEFAULT_QUERY_ROWS);
         }
 
-        Logger.debug("after keyword: " + sb.toString());
-        return sb.toString();
-    }
-
-    /**
-     * TODO
-     * we need to consider multi blanks.
-     *
-     * @param keyword
-     * @return
-     */
-    protected String processKeyword(String keyword) {
-        keyword = keyword.trim();
-        if (keyword == null || keyword.isEmpty()) {
-            return "*";
-        } else {
-            return escapeSpecialChars(keyword);
+        for (F.Tuple<String, Integer> sorter : sorters) {
+            SolrQuery.ORDER order = sorter._2 == 1 ? SolrQuery.ORDER.asc : SolrQuery.ORDER.desc;
+            query.setSort(sorter._1, order);
         }
+
+        query.setFilterQueries(fq);
+
+        return doQuery(PRODUCTS, query);
     }
 
-    protected String escapeSpecialChars(String keyword) {
-//        val reg = """([\+\-\^\{\}\|\"\~\*\?\&\:\;\/\!\[\]\(\)]|\\)""".r
-//        val rep = """\\$1"""
-//        val kw = reg.replaceAllIn(keyword, rep)
-//        String pattern = "([+-^{}|\\"~*?&:;/!\[\]\(\)|\\])";
-//        String rep = "\\$1";
-//        String result = pattern.replaceAll(keyword, rep);
-//        Logger.debug("orignal keyword:" + keyword);
-//        Logger.debug("keyword:" + result);
-
-        return ClientUtils.escapeQueryChars(keyword);
-    }
 
     @Override
     public List<Product> query(String keyword, String shop, int start, int rows, String sort, String fq) {
@@ -166,7 +114,7 @@ public class SolrImpl implements SolrI {
     }
 
     @Override
-    public List<Product> query(String[] skuids, int start, int rows, String sort, String fq) {
+    public List<Product> query(List<F.Tuple<String, String>> mallSquidPair, int start, int rows, String sort, String fq) {
         Product product = new Product();
         List<Product> products = new ArrayList<>();
         products.add(product);
@@ -174,9 +122,14 @@ public class SolrImpl implements SolrI {
     }
 
     @Override
-    public Product query(String skuid) {
-        Product product = new Product();
-        return product;
+    public Product query(String mall, String skuid) {
+        SolrQuery query = new SolrQuery();
+        query.setQuery("mall:" + mall);
+        query.setQuery("skuid:" + skuid);
+
+        // todo
+        // if there is no result.....
+        return doQuery(PRODUCTS, query).get(0);
     }
 
     @Override
@@ -192,82 +145,26 @@ public class SolrImpl implements SolrI {
         products.add(product);
         return products;
     }
-    /**
-     * 根据name检索
-     * @param name
-     * @param start 分页(从0开始)
-     * @param sort 排序
-     * @param order 1：desc，0：asc
-     * @param fq 过滤器查询,例:("id:jd_000000", "price:[1 TO 99]")
-     */
-    public List<Product> searchProductByName(String name, int start, String sort, int order, String... fq) {
-        SolrQuery query = new SolrQuery();
-//        query.setQuery("name:" + name);
-        query.setQuery(getQueryString(name));
-
-        // 筛选
-        query.setFilterQueries(fq);
-
-        // 分页
-        query.setStart(start);
-        query.setRows(DEFAULT_QUERY_ROWS);
-
-        // 排序
-        if (order == 1) {
-            query.setSort(sort, SolrQuery.ORDER.desc);
-        } else {
-            query.setSort(sort, SolrQuery.ORDER.asc);
-        }
-
-        // 指定查询结果返回哪些字段
-        //query.setFields("sku_id", "name", "price", "type", "img1", "url");
-
-        return getProducts(PRODUCTS, query);
-    }
 
     /**
-     * 根据id检索
-     * @param id
+     * query from solr.
+     * @param collection
+     * @param query
      * @return
      */
-    public Product searchProductById(String id) {
-        SolrQuery query = new SolrQuery();
-        query.setQuery("skuid:" + id);
-
-        return getProducts(PRODUCTS, query).get(0);
-    }
-
-//    /**
-//     * 删除所有索引
-//     */
-//    public void deleteAll() {
-//        SolrClient client = this.getHttpClient();
-//
-//        try {
-//            //Deleting the documents from SolrI
-//            client.deleteByQuery(PRODUCTS,"*");
-//
-//            //Saving the document
-//            client.commit();
-//        } catch(SolrServerException e) {
-//            e.printStackTrace();
-//        } catch(IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-    /**
-     * 根据检索条件，取得商品List
-     * @param collection
-     * @param query solr检索条件
-     * @return 商品List
-     */
-    private List<Product> getProducts(String collection, SolrQuery query) {
+    protected List<Product> doQuery(String collection, SolrQuery query) {
 
         try {
-            QueryResponse response = this.solrClient.query(collection, query);
 
+            List<String> fields = keywordHelper.getQueryResponseFields();
+            for (String fl : fields) {
+                query.addField(fl);
+            }
+
+            QueryResponse response = this.solrClient.query(collection, query);
+            // todo
             return response.getBeans(Product.class);
+
         } catch(SolrServerException e) {
             e.printStackTrace();
         } catch(IOException e) {
@@ -276,5 +173,92 @@ public class SolrImpl implements SolrI {
 
         return null;
     }
+
+//    /**
+//     * get fields which will be return as a query result from conf setting.
+//     * @return
+//     */
+//    protected List<String> getQueryResponseFields() {
+//        List<String> fields = config.getStringList("solr.query.fl");
+//        return fields;
+//    }
+//
+//    /**
+//     * get target fields which a query will query from from conf setting.
+//     * @return
+//     */
+//    protected List<String> getQueryTargetFields() {
+//        List<String> fromFields = config.getStringList("solr.query.from.fl");
+//        if (fromFields.size() == 0) {
+//            fromFields.add("*");
+//        }
+//        return fromFields;
+//    }
+//
+//
+//    protected String getQueryString(String keyword) {
+//        Logger.debug("origin keyword: " + keyword);
+//
+//        List<String> fromFields = getQueryTargetFields();
+//        String[] kws = splitBySpaces(keyword);
+//
+//        int i = 0;
+//        String escaped;
+//        StringBuilder sb = new StringBuilder();
+//        for (String fl : fromFields) {
+//            if (kws.length == 0) {
+//                sb.append(fl + ":*");
+//            } else {
+//                sb.append("(");
+//                int j = 0;
+//                for (String kw : kws) {
+//                    // todo
+//                    // must test for
+//                    // blanks in middle, head, and tail.
+//                    escaped = escapeSpecialChars(kw.trim());
+//                    Logger.debug("escaped keyword: " + escaped);
+//                    sb.append(fl + ":*" + escaped + "*");
+//                    if ( j != kws.length - 1) {
+//                        // todo
+////                        sb.append(" AND ");
+//                        sb.append(" OR ");
+//                    }
+//                    i++;
+//                }
+//                sb.append(")");
+//            }
+//
+//            if ( i != fromFields.size() - 1) {
+//                sb.append(" OR ");
+//            }
+//            i++;
+//        }
+//
+//        Logger.debug("after keyword: " + sb.toString());
+//        return sb.toString();
+//    }
+//
+//    /**
+//     * notice:
+//     *   both the full-width and half-width spaces should be considered
+//     *   as separator.
+//     * @param keyword
+//     * @return
+//     */
+//    protected String[] splitBySpaces(String keyword) {
+//        return keyword.split("(　|\\s)+");
+//    }
+//
+//    /**
+//     * notice:
+//     * the special characters in solr is
+//     *  + – && || ! ( ) { } [ ] ^ " ~ * ? : \ and [space].
+//     * should be converted in advance.
+//     * @param keyword
+//     * @return
+//     */
+//    protected String escapeSpecialChars(String keyword) {
+//        return ClientUtils.escapeQueryChars(keyword);
+//    }
 
 }
