@@ -38,24 +38,11 @@ public class SolrImpl implements SolrI {
      * echoParams	指定响应头部包含哪些参数，取值为none/all/explicit(默认值)
      */
 
-//    private final static String SERVER_CONF_KEY = "solr.server";
-//    private final static String SHARDS_CONF_KEY = "solr.shards";
-//    private final static String CONN_TIMEOUT_CONF_KEY = "solr.connection.timeout";
-//    private final static String SOCKET_TIMEOUT_CONF_KEY = "solr.socket.timeout";
-
-    // 分页，每页显示数量的默认值
-    private final static int DEFAULT_QUERY_ROWS = 10;
     private final static String PRODUCTS = "products";
 
     private static HttpSolrClient solrClient;
-//    private static String server;
-//    private static List<String> shards;
-//    private static int connectionTimeout;
-//    private static int socketTimeout;
-
-
-    private final Config config;
-    private final KeywordHelper keywordHelper;
+    private static Config config;
+    private static KeywordHelper keywordHelper;
 
     @Inject
     public SolrImpl(Config config, KeywordHelper keywordHelper) {
@@ -65,10 +52,6 @@ public class SolrImpl implements SolrI {
     }
 
     protected void init() {
-//        String server = this.config.getString(SERVER_CONF_KEY);
-//        List<String> shards = this.config.getStringList(SHARDS_CONF_KEY);
-//        int connectionTimeout = this.config.getInt(CONN_TIMEOUT_CONF_KEY);
-//        int socketTimeout = this.config.getInt(SOCKET_TIMEOUT_CONF_KEY);
         String server = this.config.getString("solr.server");
         List<String> shards = this.config.getStringList("solr.shards");
         int connectionTimeout = this.config.getInt("solr.connection.timeout");
@@ -90,8 +73,8 @@ public class SolrImpl implements SolrI {
 
         query.setQuery(keywordHelper.getQueryString(keyword));
         query.setStart(start);
-        if (rows == 0) {
-            query.setRows(DEFAULT_QUERY_ROWS);
+        if (rows != 0) {
+            query.setRows(rows);
         }
 
         for (F.Tuple<String, Integer> sorter : sorters) {
@@ -104,7 +87,7 @@ public class SolrImpl implements SolrI {
         return doQuery(PRODUCTS, query);
     }
 
-
+    // todo
     @Override
     public List<Product> query(String keyword, String shop, int start, int rows, String sort, String fq) {
         Product product = new Product();
@@ -113,6 +96,7 @@ public class SolrImpl implements SolrI {
         return products;
     }
 
+    // todo
     @Override
     public List<Product> query(List<F.Tuple<String, String>> mallSquidPair, int start, int rows, String sort, String fq) {
         Product product = new Product();
@@ -132,12 +116,14 @@ public class SolrImpl implements SolrI {
         return doQuery(PRODUCTS, query).get(0);
     }
 
+    // todo
     @Override
     public Product queryByUrl(String url) {
         Product product = new Product();
         return product;
     }
 
+    // todo
     @Override
     public List<Product> queryByName(String name, int start, int rows, String sort) {
         Product product = new Product();
@@ -169,96 +155,11 @@ public class SolrImpl implements SolrI {
             e.printStackTrace();
         } catch(IOException e) {
             e.printStackTrace();
+        } catch(Exception e) {
+            e.printStackTrace();
         }
 
         return null;
     }
-
-//    /**
-//     * get fields which will be return as a query result from conf setting.
-//     * @return
-//     */
-//    protected List<String> getQueryResponseFields() {
-//        List<String> fields = config.getStringList("solr.query.fl");
-//        return fields;
-//    }
-//
-//    /**
-//     * get target fields which a query will query from from conf setting.
-//     * @return
-//     */
-//    protected List<String> getQueryTargetFields() {
-//        List<String> fromFields = config.getStringList("solr.query.from.fl");
-//        if (fromFields.size() == 0) {
-//            fromFields.add("*");
-//        }
-//        return fromFields;
-//    }
-//
-//
-//    protected String getQueryString(String keyword) {
-//        Logger.debug("origin keyword: " + keyword);
-//
-//        List<String> fromFields = getQueryTargetFields();
-//        String[] kws = splitBySpaces(keyword);
-//
-//        int i = 0;
-//        String escaped;
-//        StringBuilder sb = new StringBuilder();
-//        for (String fl : fromFields) {
-//            if (kws.length == 0) {
-//                sb.append(fl + ":*");
-//            } else {
-//                sb.append("(");
-//                int j = 0;
-//                for (String kw : kws) {
-//                    // todo
-//                    // must test for
-//                    // blanks in middle, head, and tail.
-//                    escaped = escapeSpecialChars(kw.trim());
-//                    Logger.debug("escaped keyword: " + escaped);
-//                    sb.append(fl + ":*" + escaped + "*");
-//                    if ( j != kws.length - 1) {
-//                        // todo
-////                        sb.append(" AND ");
-//                        sb.append(" OR ");
-//                    }
-//                    i++;
-//                }
-//                sb.append(")");
-//            }
-//
-//            if ( i != fromFields.size() - 1) {
-//                sb.append(" OR ");
-//            }
-//            i++;
-//        }
-//
-//        Logger.debug("after keyword: " + sb.toString());
-//        return sb.toString();
-//    }
-//
-//    /**
-//     * notice:
-//     *   both the full-width and half-width spaces should be considered
-//     *   as separator.
-//     * @param keyword
-//     * @return
-//     */
-//    protected String[] splitBySpaces(String keyword) {
-//        return keyword.split("(　|\\s)+");
-//    }
-//
-//    /**
-//     * notice:
-//     * the special characters in solr is
-//     *  + – && || ! ( ) { } [ ] ^ " ~ * ? : \ and [space].
-//     * should be converted in advance.
-//     * @param keyword
-//     * @return
-//     */
-//    protected String escapeSpecialChars(String keyword) {
-//        return ClientUtils.escapeQueryChars(keyword);
-//    }
 
 }
