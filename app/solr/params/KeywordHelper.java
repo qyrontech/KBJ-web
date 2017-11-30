@@ -2,6 +2,7 @@ package solr.params;
 
 import com.typesafe.config.Config;
 import org.apache.solr.client.solrj.util.ClientUtils;
+import org.apache.commons.lang3.StringUtils;
 import play.Logger;
 
 import javax.inject.Inject;
@@ -42,10 +43,11 @@ public class KeywordHelper {
      * @return
      */
     public static String getQueryString(String keyword) {
-        Logger.debug("origin keyword: " + keyword);
 
         List<String> fromFields = getQueryTargetFields();
+        List<String> connector = config.getStringList("solr.keywords.connector");
         String[] kws = splitBySpaces(keyword);
+//        Logger.debug("origin keyword: " + keyword);
 
         int i = 0;
         String escaped;
@@ -57,16 +59,10 @@ public class KeywordHelper {
                 sb.append("(");
                 int j = 0;
                 for (String kw : kws) {
-                    // todo
-                    // must test for
-                    // blanks in middle, head, and tail.
                     escaped = escapeSpecialChars(kw.trim());
-                    Logger.debug("escaped keyword: " + escaped);
                     sb.append(fl + ":*" + escaped + "*");
                     if ( j != kws.length - 1) {
-                        // todo
-//                        sb.append(" AND ");
-                        sb.append(" OR ");
+                        sb.append(" " + connector + " ");
                     }
                     j++;
                 }
@@ -79,7 +75,7 @@ public class KeywordHelper {
             }
         }
 
-        Logger.debug("after keyword: " + sb.toString());
+//        Logger.debug("after keyword: " + sb.toString());
         return sb.toString();
     }
 
@@ -91,13 +87,20 @@ public class KeywordHelper {
      * @return
      */
     public static String[] splitBySpaces(String keyword) {
-        return keyword.split("(　|\\s)+");
+        // notice:
+        // can't use the java split method of string:
+        // for the spaces(half-width & full-width) in the tail can be ignored although,
+        // the spaces in the head can't be ignored.
+        // !!!
+        // return keyword.trim().split("(　|\\s)+");
+        return StringUtils.split(keyword);
     }
 
     /**
      * notice:
      * the special characters in solr is
-     *  + – && || ! ( ) { } [ ] ^ " ~ * ? : \ and [space].
+     *   + - && || ! ( ) { } [ ] ^ " ~ * ? : \ and [space].
+     *   for [space] both half-width and full-width space will be escaped.
      * should be converted in advance.
      * @param keyword
      * @return
