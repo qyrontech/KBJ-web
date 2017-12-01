@@ -6,8 +6,10 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import play.Logger;
 import play.libs.F;
 import solr.params.KeywordHelper;
+import solr.params.QueryFilter;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -64,7 +66,7 @@ public class SolrImpl implements SolrI {
     // should we release the solr connection?
 
     @Override
-    public List<Product> query(String keyword, int start, int rows, List<F.Tuple<String, Integer>> sorters, String fq) {
+    public List<Product> query(String keyword, int start, int rows, List<F.Tuple<String, Integer>> sorters, List<QueryFilter> fqs) {
 
         SolrQuery query = new SolrQuery();
 
@@ -76,10 +78,14 @@ public class SolrImpl implements SolrI {
 
         for (F.Tuple<String, Integer> sorter : sorters) {
             SolrQuery.ORDER order = sorter._2 == 1 ? SolrQuery.ORDER.asc : SolrQuery.ORDER.desc;
-            query.setSort(sorter._1, order);
+            query.addSort(sorter._1, order);
         }
 
-        query.setFilterQueries(fq);
+        for (QueryFilter fq : fqs) {
+            query.addFilterQuery(fq.toString());
+        }
+
+        Logger.debug(query.toQueryString());
 
         return doQuery(PRODUCTS, query);
     }
@@ -138,8 +144,8 @@ public class SolrImpl implements SolrI {
     protected List<Product> doQuery(String collection, SolrQuery query) {
 
         try {
-
-            List<String> fields = keywordHelper.getQueryResponseFields();
+            // get fields which will be return as a query result from conf setting.
+            List<String> fields = config.getStringList("solr.query.fl");
             for (String fl : fields) {
                 query.addField(fl);
             }

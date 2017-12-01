@@ -17,15 +17,6 @@ public class KeywordHelper {
     }
 
     /**
-     * get fields which will be return as a query result from conf setting.
-     * @return
-     */
-    public static List<String> getQueryResponseFields() {
-        List<String> fields = config.getStringList("solr.query.fl");
-        return fields;
-    }
-
-    /**
      * get target fields which a query will query from from conf setting.
      * @return
      */
@@ -45,7 +36,7 @@ public class KeywordHelper {
     public static String getQueryString(String keyword) {
 
         List<String> fromFields = getQueryTargetFields();
-        List<String> connector = config.getStringList("solr.keywords.connector");
+        String connector = config.getString("solr.query.keywords.connector");
         String[] kws = splitBySpaces(keyword);
 //        Logger.debug("origin keyword: " + keyword);
 

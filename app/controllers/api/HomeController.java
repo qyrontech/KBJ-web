@@ -22,19 +22,49 @@ public class HomeController extends Controller {
         this.searcher = searcher;
     }
 
+    /**
+     * TODO
+     * to be remove
+     * just for test
+     *
+     * @return
+     */
     public Result index() {
 
-        // TODO
-        // to be remove
-        // just for test
-//        List<Product> products = searcher.query();
-//        List<Product> products = searcher.query("罗技", 0, 10, "", "");
-//        List<Product> products = searcher.query("小 (米*", 0, 10, "", "");
-//        List<Product> products = searcher.query("小 米", 0, 10, "", "");
+        String keyword = "小米（MI）小 米　家";
 
         List<F.Tuple<String, Integer>> sorters = new ArrayList<>();
         sorters.add(new F.Tuple("price", 1));
-        List<Product> products = searcher.query("小米（MI）小 米　家", 0, 10, sorters, "");
+
+        List<F.Tuple4<String, String, String, String>> filters = new ArrayList<>();
+        filters.add(new F.Tuple4("", "price", "10", ""));
+
+        List<Product> products = searcher.query(keyword, 0, 10, sorters, filters);
+
+        Logger.debug("-----------solr: " + products.size());
+        for (Product product : products) {
+            Logger.debug(product.getSkuid() + " : " + product.getName() + " : " + product.getPrice());
+        }
+
+        return ok(Json.toJson(products));
+    }
+
+    public Result generalSearch(String keyword, int start, int rows) {
+
+        // todo
+        // for test
+        keyword = "小米（MI）小 米　家";
+        start = 0;
+        rows = 10;
+
+        List<F.Tuple<String, Integer>> sorters = new ArrayList<>();
+        sorters.add(new F.Tuple("price", 1));
+
+        List<F.Tuple4<String, String, String, String>> filters = new ArrayList<>();
+        filters.add(new F.Tuple4("", "price", "10", ""));
+
+        List<Product> products = searcher.query(keyword, start, rows, sorters, filters);
+
         Logger.debug("-----------solr: " + products.size());
         for (Product product : products) {
             Logger.debug(product.getSkuid() + " : " + product.getName() + " : " + product.getPrice());

@@ -3,6 +3,7 @@ package solr;
 import com.google.inject.ImplementedBy;
 import models.Product;
 import play.libs.F;
+import solr.params.QueryFilter;
 
 import java.util.List;
 import java.util.Map;
@@ -15,11 +16,11 @@ public interface SolrI {
      * @param keyword
      * @param start
      * @param rows
-     * @param sort eg: sort=price desc,score asc
-     * @param fq  eg: fq=price:[100 To *]&fq=section:0
+     * @param sorters eg: sort=price desc,score asc
+     * @param fqs  eg: fq=price:[100 To *] fq=section:0
      * @return
      */
-    List<Product> query(String keyword, int start, int rows, List<F.Tuple<String, Integer>> sorters, String fq);
+    List<Product> query(String keyword, int start, int rows, List<F.Tuple<String, Integer>> sorters, List<QueryFilter> fqs);
 
     /**
      * find from solr with shop specified.
