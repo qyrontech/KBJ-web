@@ -20,8 +20,4 @@ public class CategoryMapping extends BaseModel {
     @Constraints.Required
     public Long mallCateId;
 
-    @Constraints.Required
-    @Column(columnDefinition = "boolean default true")
-    public boolean valid;
-
 }
