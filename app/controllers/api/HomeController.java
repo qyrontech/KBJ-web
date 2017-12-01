@@ -73,4 +73,20 @@ public class HomeController extends Controller {
         return ok(Json.toJson(products));
     }
 
+    public Result generalSearch(String keyword, String start, String rows, String sorter, String filter) {
+
+        // todo
+        // for test
+        keyword = "小米（MI）小 米　家";
+
+        List<Product> products = searcher.query(keyword, Integer.valueOf(start),
+                Integer.valueOf(rows), sorter, filter);
+        Logger.debug("-----------solr: " + products.size());
+        for (Product product : products) {
+            Logger.debug(product.getSkuid() + " : " + product.getName() + " : " + product.getPrice());
+        }
+
+        return ok(Json.toJson(products));
+    }
+
 }

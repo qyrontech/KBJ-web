@@ -38,4 +38,9 @@ public class SearchService {
         return products;
     }
 
+    public List<Product> query(String keyword, int start, int rows, String sorter, String filter) {
+        List<Product> products = solr.query(keyword, start, rows, sorter, filter);
+        return products;
+    }
+
 }

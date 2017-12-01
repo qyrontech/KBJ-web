@@ -2,7 +2,9 @@ package solr;
 
 import com.typesafe.config.Config;
 import models.Product;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -64,6 +66,45 @@ public class SolrImpl implements SolrI {
 
     // TODO
     // should we release the solr connection?
+
+    @Override
+    public List<Product> query(String keyword, int start, int rows, String sorter, String fq) {
+
+        SolrQuery query = new SolrQuery();
+
+        query.setQuery(keywordHelper.getQueryString(keyword));
+        query.setStart(start);
+        if (rows != 0) {
+            query.setRows(rows);
+        }
+
+        // todo
+        Logger.debug("sorter: " + sorter);
+        String[] sorters = StringUtils.split(sorter,",");
+        for (String sort : sorters) {
+            String[] sts = StringUtils.split(sort);
+            if (sts.length == 2) {
+                String field = sts[0];
+                ORDER order = ORDER.asc.toString().equals(sts[1]) ? ORDER.asc : ORDER.desc;
+                query.addSort(field, order);
+            }
+        }
+
+        // todo
+        Logger.debug("fq: " + fq);
+        String[] fqs = StringUtils.split(fq,"&");
+        for (String f : fqs) {
+            Logger.debug("f: " + f);
+            String[] flts = StringUtils.split(f,":");
+            if (flts.length == 2) {
+                query.addFilterQuery(f);
+            }
+        }
+
+        Logger.debug(query.toQueryString());
+
+        return doQuery(PRODUCTS, query);
+    }
 
     @Override
     public List<Product> query(String keyword, int start, int rows, List<F.Tuple<String, Integer>> sorters, List<QueryFilter> fqs) {
@@ -143,6 +184,7 @@ public class SolrImpl implements SolrI {
      */
     protected List<Product> doQuery(String collection, SolrQuery query) {
 
+        List<Product> products = new ArrayList<>();
         try {
             // get fields which will be return as a query result from conf setting.
             List<String> fields = config.getStringList("solr.query.fl");
@@ -152,7 +194,7 @@ public class SolrImpl implements SolrI {
 
             QueryResponse response = this.solrClient.query(collection, query);
             // todo
-            return response.getBeans(Product.class);
+            products = response.getBeans(Product.class);
 
         } catch(SolrServerException e) {
             e.printStackTrace();
@@ -162,7 +204,7 @@ public class SolrImpl implements SolrI {
             e.printStackTrace();
         }
 
-        return null;
+        return products;
     }
 
 }

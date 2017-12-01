@@ -21,10 +21,10 @@ GET     /manage                                                 controllers.gui.
 GET     /manage/cate/map                                        controllers.gui.manage.CategoryController.getRootCates
 GET     /manage/cate/map/getleafcate/:cateRootId                controllers.gui.manage.CategoryController.getLeafCates(cateRootId: String)
 
-
+# Routes For APIS
 # controllers for api access for app.
-# for test
-GET     /api/                                                   controllers.api.HomeController.index
+# ~~~~
+->      /api/                                                   api.Routes
 
 # health check
 # todo
