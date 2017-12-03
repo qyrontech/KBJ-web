@@ -16,7 +16,6 @@ import java.util.List;
  */
 public class QueryFilter {
 
-//    private final static String connector = "&";
     private final static String connector = ",";
     private final static String prefix = "fq=";
     private final static String range = " TO ";
@@ -24,7 +23,7 @@ public class QueryFilter {
     private final static String rightBracket = "]";
     private final static String plus = "+";
     private final static String minus = "-";
-    private final static String asterik = "*";
+    private final static String asterisk = "*";
     protected final static String msg = "wrong format of query filter in request parameters.\n" +
             "must be the format like fq=+field1:[value1 TO value2] or fq=-field2:value1.\n" +
             "or the union of this two with the connector '&'.\n" +
@@ -45,8 +44,8 @@ public class QueryFilter {
 
     private DIRECTION direction = DIRECTION.in;
     private String field;
-    private String from = asterik;
-    private String to = asterik;
+    private String from = asterisk;
+    private String to = asterisk;
 
     public DIRECTION getDirection() {
         return direction;
@@ -91,7 +90,7 @@ public class QueryFilter {
 
     public void setFrom(String from) {
         if (from == null || from.trim().isEmpty()) {
-            this.from = asterik;
+            this.from = asterisk;
         } else {
             this.from = from;
         }
@@ -103,12 +102,15 @@ public class QueryFilter {
 
     public void setTo(String to) {
         if (to == null || to.trim().isEmpty()) {
-            this.to = asterik;
+            this.to = asterisk;
         } else {
             this.to = to;
         }
     }
 
+    /**
+     * to string in the format: (-)field:[value1 TO value2]
+     */
     @Override
     public String toString() {
         String direct = direction == DIRECTION.in ? "" : minus;
@@ -161,44 +163,40 @@ public class QueryFilter {
             } else {
                 key = aryPair[0];
                 values = aryPair[1];
-//                if (!key.toLowerCase().startsWith(prefix)) {
-//                    throw new Exception(message);
-//                }
-//                else
-                {
-                    // drop the prefix [fq=] in key.
-//                    key = key.substring(prefix.length());
 
-                    // extract the direction [+/-/] of key.
-                    if (key.startsWith(plus) || key.startsWith(minus)) {
-                        direct = key.substring(0, 1);
-                        key = key.substring(1);
+                if (key.toLowerCase().startsWith(prefix)) {
+                    // drop the prefix [fq=] in key.
+                    key = key.substring(prefix.length());
+                }
+                // extract the direction [+/-/] of key.
+                if (key.startsWith(plus) || key.startsWith(minus)) {
+                    direct = key.substring(0, 1);
+                    key = key.substring(1);
+                } else {
+                    direct = "";
+                }
+
+                // if there is no range in value, it is the value.
+                if (values.toUpperCase().indexOf(range) == -1) {
+                    value = values;
+                    fqs.add(new QueryFilter(direct, key, value, value));
+                } else {
+                    // if there is range in value, split it to lower limit and upper limit.
+                    String[] aryValue = StringUtils.split(values, range);
+                    if (aryValue.length != 2) {
+                        throw new Exception(message);
                     } else {
-                        direct = "";
-                    }
-                    // if there is no range in value, it is the value.
-                    if (values.toUpperCase().indexOf(range) == -1) {
-                        value = values;
-                        fqs.add(new QueryFilter(direct, key, value, value));
-                    } else {
-                        // if there is range in value, split it to lower limit and upper limit.
-                        String[] aryValue = StringUtils.split(values, range);
-                        if (aryValue.length != 2) {
+                        value1 = aryValue[0];
+                        value2 = aryValue[1];
+                        if (!value1.trim().startsWith(leftBracket)
+                                || !value2.trim().endsWith(rightBracket)) {
                             throw new Exception(message);
                         } else {
-                            value1 = aryValue[0];
-                            value2 = aryValue[1];
-                            if (!value1.trim().startsWith(leftBracket)
-                                    || !value2.trim().endsWith(rightBracket)) {
-                                throw new Exception(message);
-                            } else {
-                                value1 = value1.replace(leftBracket, "");
-                                value2 = value2.replace(rightBracket, "");
-                                fqs.add(new QueryFilter(direct, key, value1, value2));
-                            }
+                            value1 = value1.replace(leftBracket, "");
+                            value2 = value2.replace(rightBracket, "");
+                            fqs.add(new QueryFilter(direct, key, value1, value2));
                         }
                     }
-
                 }
             }
         }
