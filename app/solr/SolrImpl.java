@@ -2,7 +2,6 @@ package solr;
 
 import com.typesafe.config.Config;
 import models.Product;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -12,6 +11,7 @@ import play.Logger;
 import play.libs.F;
 import solr.params.KeywordHelper;
 import solr.params.QueryFilter;
+import solr.params.QuerySorter;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -70,42 +70,23 @@ public class SolrImpl implements SolrI {
     @Override
     public List<Product> query(String keyword, int start, int rows, String sorter, String fq) {
 
-        SolrQuery query = new SolrQuery();
-
-        query.setQuery(keywordHelper.getQueryString(keyword));
-        query.setStart(start);
-        if (rows != 0) {
-            query.setRows(rows);
-        }
-
-        // todo
-        Logger.debug("sorter: " + sorter);
-        String[] sorters = StringUtils.split(sorter,",");
-        for (String sort : sorters) {
-            String[] sts = StringUtils.split(sort);
-            if (sts.length == 2) {
-                String field = sts[0];
-                ORDER order = ORDER.asc.toString().equals(sts[1]) ? ORDER.asc : ORDER.desc;
-                query.addSort(field, order);
-            }
-        }
+        List<QuerySorter> sorts = new ArrayList<>();
+        List<QueryFilter> qfs = new ArrayList<>();
 
         try {
-            List<QueryFilter> qfs = QueryFilter.apply(fq);
-            for (QueryFilter qf : qfs) {
-                query.addFilterQuery(qf.toString());
-            }
+            Logger.debug("sorter: " + sorter);
+            Logger.debug("fq: " + fq);
+            sorts = QuerySorter.apply(sorter);
+            qfs = QueryFilter.apply(fq);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        Logger.debug(query.toQueryString());
-
-        return doQuery(PRODUCTS, query);
+        return query(keyword, start, rows, sorts, qfs);
     }
 
     @Override
-    public List<Product> query(String keyword, int start, int rows, List<F.Tuple<String, Integer>> sorters, List<QueryFilter> fqs) {
+    public List<Product> query(String keyword, int start, int rows, List<QuerySorter> sorters, List<QueryFilter> fqs) {
 
         SolrQuery query = new SolrQuery();
 
@@ -115,9 +96,9 @@ public class SolrImpl implements SolrI {
             query.setRows(rows);
         }
 
-        for (F.Tuple<String, Integer> sorter : sorters) {
-            SolrQuery.ORDER order = sorter._2 == 1 ? SolrQuery.ORDER.asc : SolrQuery.ORDER.desc;
-            query.addSort(sorter._1, order);
+        for (QuerySorter sort : sorters) {
+            ORDER order = ORDER.valueOf(sort.getOrder().toString());
+            query.addSort(sort.getField(), order);
         }
 
         for (QueryFilter fq : fqs) {

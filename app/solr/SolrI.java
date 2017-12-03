@@ -4,9 +4,9 @@ import com.google.inject.ImplementedBy;
 import models.Product;
 import play.libs.F;
 import solr.params.QueryFilter;
+import solr.params.QuerySorter;
 
 import java.util.List;
-import java.util.Map;
 
 @ImplementedBy(SolrImpl.class)
 public interface SolrI {
@@ -27,11 +27,11 @@ public interface SolrI {
      * @param keyword
      * @param start
      * @param rows
-     * @param sorters eg: [("price", 0), ("score", 1)]
+     * @param sorters eg: [("price", asc), ("score", desc)]
      * @param fqs  eg: [("+", "price", "10", "*"), ("-", "score", "4", "")]
      * @return
      */
-    List<Product> query(String keyword, int start, int rows, List<F.Tuple<String, Integer>> sorters, List<QueryFilter> fqs);
+    List<Product> query(String keyword, int start, int rows, List<QuerySorter> sorters, List<QueryFilter> fqs);
 
     /**
      * find from solr with shop specified.

@@ -8,9 +8,9 @@ import java.util.List;
 
 /**
  *
- * Lucene query string(s) for filtering the results without affecting scoring
+ * lucene query string(s) for filtering the results without affecting scoring
  * format eg:
- *   fq=+price:[1 TO 1000]&-fq=sales:[1000 TO *]
+ *   (fq=)(+)price:[1 to 1000],(fq=)-sales:[1000 to *],(fq=)cate:mouse
  * @author jie-z
  * @date 2017/12/01
  */
@@ -25,9 +25,10 @@ public class QueryFilter {
     private final static String minus = "-";
     private final static String asterisk = "*";
     protected final static String msg = "wrong format of query filter in request parameters.\n" +
-            "must be the format like fq=+field1:[value1 TO value2] or fq=-field2:value1.\n" +
-            "or the union of this two with the connector '&'.\n" +
-            "the + symbol of field can be omitted.";
+            "must be the format like:\n" +
+            "    (fq=)(+)field1:[value1 TO value2] or (fq=)-field2:value1.\n" +
+            "or the union of this two with the connector ','.\n" +
+            "the prefix 'fq=' or '+' symbol of field can be omitted.";
 
     public enum DIRECTION { in, ex;
         public DIRECTION reverse() {
@@ -81,7 +82,6 @@ public class QueryFilter {
         } else {
             this.field = field;
         }
-
     }
 
     public String getFrom() {
@@ -119,7 +119,7 @@ public class QueryFilter {
 
     public static QueryFilter convertFromTuple(F.Tuple4<String, String, String, String> fq)
             throws Exception {
-        if (fq!= null) {
+        if (fq != null) {
             return new QueryFilter(fq._1, fq._2, fq._3, fq._4);
         }
         return null;
@@ -142,8 +142,7 @@ public class QueryFilter {
     /**
      * apple the request parameter [fq]s to the solr query filter string.
      *   the format of fq in request parameters should be
-     *     --Deprecated  fq=+price:[1 TO 1000]&fq=-cate:mouse  --Deprecated
-     *     +price:[1 TO 1000],-cate:mouse
+     *     (fq=)(+)price:[1 TO 1000],(fq=)-cate:mouse
      * @param strFq
      * @return
      * @throws Exception
@@ -151,18 +150,18 @@ public class QueryFilter {
     public static List<QueryFilter> apply(String strFq) throws Exception {
 
         List<QueryFilter> fqs = new ArrayList<>();
-
-        String[] aryFq = StringUtils.split(strFq, connector);
         String direct, key, values, value, value1, value2;
         String message = msg + "the request string is:\n" + strFq;
+
+        String[] aryFq = StringUtils.split(strFq, connector);
 
         for (String f : aryFq) {
             String[] aryPair = StringUtils.split(f,":");
             if (aryPair.length != 2) {
                 throw new Exception(message);
             } else {
-                key = aryPair[0];
-                values = aryPair[1];
+                key = aryPair[0].trim();
+                values = aryPair[1].trim();
 
                 if (key.toLowerCase().startsWith(prefix)) {
                     // drop the prefix [fq=] in key.

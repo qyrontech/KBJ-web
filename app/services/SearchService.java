@@ -4,6 +4,7 @@ import models.Product;
 import play.libs.F;
 import solr.SolrI;
 import solr.params.QueryFilter;
+import solr.params.QuerySorter;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -24,17 +25,19 @@ public class SearchService {
      * @return
      */
     public List<Product> query(String keyword, int start, int rows,
-                               List<F.Tuple<String, Integer>> sorters,
+                               List<F.Tuple<String, String>> sorters,
                                List<F.Tuple4<String, String, String, String>> filters) {
         List<QueryFilter> fqs = new ArrayList<>();
+        List<QuerySorter> sorts = new ArrayList<>();
 
         try {
             fqs = QueryFilter.convertFromTuple(filters);
+            sorts = QuerySorter.convertFromTuple(sorters);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        List<Product> products = solr.query(keyword, start, rows, sorters, fqs);
+        List<Product> products = solr.query(keyword, start, rows, sorts, fqs);
         return products;
     }
 

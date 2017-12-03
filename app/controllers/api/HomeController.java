@@ -33,7 +33,7 @@ public class HomeController extends Controller {
 
         String keyword = "小米（MI）小 米　家";
 
-        List<F.Tuple<String, Integer>> sorters = new ArrayList<>();
+        List<F.Tuple<String, String>> sorters = new ArrayList<>();
         sorters.add(new F.Tuple("price", 1));
 
         List<F.Tuple4<String, String, String, String>> filters = new ArrayList<>();
@@ -57,7 +57,7 @@ public class HomeController extends Controller {
         start = 0;
         rows = 10;
 
-        List<F.Tuple<String, Integer>> sorters = new ArrayList<>();
+        List<F.Tuple<String, String>> sorters = new ArrayList<>();
         sorters.add(new F.Tuple("price", 1));
 
         List<F.Tuple4<String, String, String, String>> filters = new ArrayList<>();
