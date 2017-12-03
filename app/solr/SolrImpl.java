@@ -90,15 +90,13 @@ public class SolrImpl implements SolrI {
             }
         }
 
-        // todo
-        Logger.debug("fq: " + fq);
-        String[] fqs = StringUtils.split(fq,"&");
-        for (String f : fqs) {
-            Logger.debug("f: " + f);
-            String[] flts = StringUtils.split(f,":");
-            if (flts.length == 2) {
-                query.addFilterQuery(f);
+        try {
+            List<QueryFilter> qfs = QueryFilter.apply(fq);
+            for (QueryFilter qf : qfs) {
+                query.addFilterQuery(qf.toString());
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         Logger.debug(query.toQueryString());

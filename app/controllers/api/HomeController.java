@@ -77,7 +77,7 @@ public class HomeController extends Controller {
 
         // todo
         // for test
-        keyword = "小米（MI）小 米　家";
+        // keyword = "小米（MI）小 米　家";
 
         List<Product> products = searcher.query(keyword, Integer.valueOf(start),
                 Integer.valueOf(rows), sorter, filter);
