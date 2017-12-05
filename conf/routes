@@ -20,6 +20,8 @@ GET     /manage                                                 controllers.gui.
 
 GET     /manage/cate/map                                        controllers.gui.manage.CategoryController.getRootCates
 GET     /manage/cate/map/getleafcate/:cateRootId                controllers.gui.manage.CategoryController.getLeafCates(cateRootId: String)
+POST    /manage/cate/map/findmallcate                           controllers.gui.manage.CategoryController.getMallCates
+POST    /manage/cate/map/edit                                   controllers.gui.manage.CategoryController.edit
 
 # Routes For APIS
 # controllers for api access for app.

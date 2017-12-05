@@ -1,17 +1,11 @@
 @import models.entities.KeySearch
 @(list: List[KeySearch])
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Title</title>
-  <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("bootstrap/dist/css/bootstrap.min.css")">
-</head>
-<body>
+@main() {
   <div class="container">
     <div class="row col-xs-8 col-xs-offset-1">
-      <table class="table">
+      <table class="table" id="search1">
+        <thead>
         <tr>
           <th>id</th>
           <th>关键字</th>
@@ -20,6 +14,8 @@
           <th>更新时间</th>
           <th>修改</th>
         </tr>
+        </thead>
+        <tbody>
         @for(row <- list) {
           <tr>
             <th>@row.id</th>
@@ -27,11 +23,18 @@
             <th>@row.searchCounts</th>
             <th>@row.createDate.format("dd - MM - yyyy")</th>
             <th>@row.updateDate.format("dd - MM - yyyy")</th>
-            <th><button class="btn" onclick="location.href='@gui.routes.HomeController.editPage(row.id)'">修改</button></th>
+            <th><button class="btn" onclick="location.href = '@gui.routes.HomeController.editPage(row.id)'">修改</button></th>
           </tr>
         }
+        </tbody>
       </table>
     </div>
   </div>
-</body>
-</html>
+}
+
+  <script type="text/javascript">
+      $(document).ready(function(){
+        alert(1);
+        $('#search1').DataTable();
+      });
+  </script>

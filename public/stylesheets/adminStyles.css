@@ -7,8 +7,12 @@ body{
   padding: 0px;
 }
 
+.row {
+  margin: 0px;
+}
+
 .min-height{
-  min-height: 768px;
+  /*min-height: 768px;*/
 }
 
 .content-box, .content-box-large {
@@ -113,4 +117,8 @@ body{
 /* categoryMapping */
 .panel-body {
   clear:both;
+}
+
+.mallCateTable th {
+  text-align: center;
 }
