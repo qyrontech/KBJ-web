@@ -11,82 +11,111 @@ import java.util.Formatter;
 //public class Product extends Model {
 public class Product {
 
-    @Field
+    public static class SolrField {
+        public final static String mall = "mall";
+        public final static String skuid = "skuid";
+        public final static String item_id = "item_id";
+        public final static String name = "name";
+        public final static String url = "url";
+        public final static String kbj_cate_name = "kbj_cate_name";
+        public final static String kbj_cate_id = "kbj_cate_id";
+        public final static String mall_cate_url = "mall_kbj_url";
+        public final static String price = "price";
+        public final static String ref_price = "ref_price";
+        public final static String sales_num = "sales_num";
+        public final static String comments_num = "comments_num";
+        public final static String stock_status = "stock_status";
+        public final static String img1 = "img1";
+        public final static String img2 = "img2";
+        public final static String img3 = "img3";
+        public final static String img4 = "img4";
+        public final static String img1_max = "img1_max";
+        public final static String img2_max = "img2_max";
+        public final static String img3_max = "img3_max";
+        public final static String img4_max = "img4_max";
+        public final static String specs = "specs";
+        public final static String shop = "shop";
+        public final static String shop_url = "shop_url";
+        public final static String self_support = "is_self_support";
+        public final static String date = "date";
+    }
+
+    @Field(SolrField.mall)
     public String mall;
 
-    @Field("sku_id")
+    @Field(SolrField.skuid)
     public String skuid;
 
-    @Field("item_id")
+    @Field(SolrField.item_id)
     public String itemId;
 
-    @Field
+    @Field(SolrField.name)
     public String name;
 
-    @Field
+    @Field(SolrField.url)
     public String url;
 
-    @Field("kbj_cate_name")
+    @Field(SolrField.kbj_cate_name)
     public String kbjCateName;
 
-    @Field("kbj_cate_id")
+    @Field(SolrField.kbj_cate_id)
     public String kbjCateId;
 
-    @Field("mall_cate_url")
+    @Field(SolrField.mall_cate_url)
     public String mallCateUrl;
 
-    @Field
+    @Field(SolrField.price)
     public float price;
 
-    @Field("ref_price")
+    @Field(SolrField.ref_price)
     public float refPrice;
 
-    @Field("sales_num")
+    @Field(SolrField.sales_num)
     public String salesNum;
 
-    @Field("comments_num")
+    @Field(SolrField.comments_num)
     public String commentsNum;
 
-    @Field("stock_status")
+    @Field(SolrField.stock_status)
     public String stockStatus;
 
-    @Field
+    @Field(SolrField.img1)
     public String img1;
 
-    @Field
+    @Field(SolrField.img2)
     public String img2;
 
-    @Field
+    @Field(SolrField.img3)
     public String img3;
 
-    @Field
+    @Field(SolrField.img4)
     public String img4;
 
-    @Field("img1_max")
+    @Field(SolrField.img1_max)
     public String img1Max;
 
-    @Field("img2_max")
+    @Field(SolrField.img2_max)
     public String img2Max;
 
-    @Field("img3_max")
+    @Field(SolrField.img3_max)
     public String img3Max;
 
-    @Field("img4_max")
+    @Field(SolrField.img4_max)
     public String img4Max;
 
-    @Field
+    @Field(SolrField.specs)
     public String specs;
 
-    @Field
+    @Field(SolrField.shop)
     public String shop;
 
-    @Field("shop_url")
+    @Field(SolrField.shop_url)
     public String shopUrl;
 
-    @Field("is_self_support")
+    @Field(SolrField.self_support)
     public boolean selfSupport;
 
-    @Field
+    @Field(SolrField.date)
     private String date;
 
     public String getMall() {

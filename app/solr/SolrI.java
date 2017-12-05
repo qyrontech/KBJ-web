@@ -2,7 +2,6 @@ package solr;
 
 import com.google.inject.ImplementedBy;
 import models.Product;
-import play.libs.F;
 import solr.params.QueryFilter;
 import solr.params.QuerySorter;
 
@@ -12,7 +11,7 @@ import java.util.List;
 public interface SolrI {
 
     /**
-     * find from solr by keyword with the consider of pagination and sort.
+     * find from solr by keyword with the consider of pagination and sort, filter.
      * @param keyword
      * @param start
      * @param rows
@@ -23,7 +22,7 @@ public interface SolrI {
     List<Product> query(String keyword, int start, int rows, String sorter, String fq);
 
     /**
-     * find from solr by keyword with the consider of pagination and sort.
+     * find from solr by keyword with the consider of pagination and sort, filter.
      * @param keyword
      * @param start
      * @param rows
@@ -34,32 +33,20 @@ public interface SolrI {
     List<Product> query(String keyword, int start, int rows, List<QuerySorter> sorters, List<QueryFilter> fqs);
 
     /**
-     * find from solr with shop specified.
+     * find from solr with mall specified.
      * @param keyword
-     * @param shop
+     * @param mall
+     * @param cate
      * @param start
      * @param rows
      * @param sort
      * @param fq
      * @return
      */
-    List<Product> query(String keyword, String shop, int start, int rows, String sort, String fq);
+    List<Product> query(String keyword, String mall, String cate, int start, int rows, String sort, String fq);
 
     /**
-     * find from solr by the array product skuids.
-     * can be used in the hottest items & bargain items area in the top page.
-     * for both of which need to query product from solr by id.
-     * @param mallSquidPair List<(mall, skuid)>
-     * @param start
-     * @param rows
-     * @param sort
-     * @param fq
-     * @return
-     */
-    List<Product> query(List<F.Tuple<String, String>> mallSquidPair, int start, int rows, String sort, String fq);
-
-    /**
-     * find from solr by the product skuid.
+     * find from solr by the product skuid and mall.
      * can be used in the hottest items & bargain items area in the top page.
      * for both of which need to query product from solr by id.
      * @param mall

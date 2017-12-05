@@ -2,13 +2,13 @@ package solr;
 
 import com.typesafe.config.Config;
 import models.Product;
+import models.Product.SolrField;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import play.Logger;
-import play.libs.F;
 import solr.params.KeywordHelper;
 import solr.params.QueryFilter;
 import solr.params.QuerySorter;
@@ -64,19 +64,25 @@ public class SolrImpl implements SolrI {
                 .build();
     }
 
-    // TODO
-    // should we release the solr connection?
-
     @Override
-    public List<Product> query(String keyword, int start, int rows, String sorter, String fq) {
-
+    public List<Product> query(String keyword, String mall, String cate,
+                               int start, int rows, String sort, String fq) {
         List<QuerySorter> sorts = new ArrayList<>();
         List<QueryFilter> qfs = new ArrayList<>();
+        SolrQuery query = new SolrQuery();
+
+        query.setQuery(keywordHelper.getQueryString(keyword));
+
+        if (!mall.trim().isEmpty()) {
+            query.setQuery(SolrField.mall + ":" + mall);
+        }
+
+        if (!cate.trim().isEmpty()) {
+            query.setQuery(SolrField.kbj_cate_id + ":" + cate);
+        }
 
         try {
-            Logger.debug("sorter: " + sorter);
-            Logger.debug("fq: " + fq);
-            sorts = QuerySorter.apply(sorter);
+            sorts = QuerySorter.apply(sort);
             qfs = QueryFilter.apply(fq);
         } catch (Exception e) {
             e.printStackTrace();
@@ -91,6 +97,7 @@ public class SolrImpl implements SolrI {
         SolrQuery query = new SolrQuery();
 
         query.setQuery(keywordHelper.getQueryString(keyword));
+
         query.setStart(start);
         if (rows != 0) {
             query.setRows(rows);
@@ -110,33 +117,24 @@ public class SolrImpl implements SolrI {
         return doQuery(PRODUCTS, query);
     }
 
-    // todo
     @Override
-    public List<Product> query(String keyword, String shop, int start, int rows, String sort, String fq) {
-        Product product = new Product();
-        List<Product> products = new ArrayList<>();
-        products.add(product);
-        return products;
-    }
-
-    // todo
-    @Override
-    public List<Product> query(List<F.Tuple<String, String>> mallSquidPair, int start, int rows, String sort, String fq) {
-        Product product = new Product();
-        List<Product> products = new ArrayList<>();
-        products.add(product);
-        return products;
+    public List<Product> query(String keyword, int start, int rows, String sorter, String fq) {
+       return query(keyword, "", "", start, rows, sorter, fq);
     }
 
     @Override
     public Product query(String mall, String skuid) {
         SolrQuery query = new SolrQuery();
-        query.setQuery("mall:" + mall);
-        query.setQuery("skuid:" + skuid);
-
-        // todo
-        // if there is no result.....
-        return doQuery(PRODUCTS, query).get(0);
+        query.setQuery(SolrField.mall + ":" + mall);
+        query.setQuery(SolrField.skuid + ":" + skuid);
+        // find the latest if there is more than one.
+        query.addSort(SolrField.date, ORDER.desc);
+        List<Product> products = doQuery(PRODUCTS, query);
+        if (products.size() > 0) {
+            return products.get(0);
+        } else {
+            return null;
+        }
     }
 
     // todo
