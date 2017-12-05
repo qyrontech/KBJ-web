@@ -2,7 +2,7 @@ package solr;
 
 import com.google.inject.ImplementedBy;
 import models.Product;
-import play.libs.F;
+import models.ProductsWithNum;
 import solr.params.QueryFilter;
 import solr.params.QuerySorter;
 
@@ -20,7 +20,7 @@ public interface SolrI {
      * @param fq  eg: fq=price:[100 To *] fq=section:0
      * @return
      */
-    F.Tuple<List<Product>, Long> query(String keyword, int start, int rows, String sorter, String fq);
+    ProductsWithNum query(String keyword, int start, int rows, String sorter, String fq);
 
     /**
      * find from solr by keyword with the consider of pagination and sort, filter.
@@ -31,7 +31,7 @@ public interface SolrI {
      * @param fqs  eg: [("+", "price", "10", "*"), ("-", "score", "4", "")]
      * @return
      */
-    F.Tuple<List<Product>, Long> query(String keyword, int start, int rows,
+    ProductsWithNum query(String keyword, int start, int rows,
                                        List<QuerySorter> sorters, List<QueryFilter> fqs);
 
     /**
@@ -45,7 +45,7 @@ public interface SolrI {
      * @param fq
      * @return
      */
-    F.Tuple<List<Product>, Long> query(String keyword, String mall, String cate,
+    ProductsWithNum query(String keyword, String mall, String cate,
                                        int start, int rows, String sort, String fq);
 
     /**

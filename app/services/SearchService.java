@@ -1,6 +1,6 @@
 package services;
 
-import models.Product;
+import models.ProductsWithNum;
 import play.libs.F;
 import solr.SolrI;
 import solr.params.QueryFilter;
@@ -24,7 +24,7 @@ public class SearchService {
      * just for test
      * @return
      */
-    public F.Tuple<List<Product>, Long> query(String keyword, int start, int rows,
+    public ProductsWithNum query(String keyword, int start, int rows,
                                List<F.Tuple<String, String>> sorters,
                                List<F.Tuple4<String, String, String, String>> filters) {
         List<QueryFilter> fqs = new ArrayList<>();
@@ -37,12 +37,12 @@ public class SearchService {
             e.printStackTrace();
         }
 
-        F.Tuple<List<Product>, Long> products = solr.query(keyword, start, rows, sorts, fqs);
+        ProductsWithNum products = solr.query(keyword, start, rows, sorts, fqs);
         return products;
     }
 
-    public F.Tuple<List<Product>, Long> query(String keyword, int start, int rows, String sorter, String filter) {
-        F.Tuple<List<Product>, Long> products = solr.query(keyword, start, rows, sorter, filter);
+    public ProductsWithNum query(String keyword, int start, int rows, String sorter, String filter) {
+        ProductsWithNum products = solr.query(keyword, start, rows, sorter, filter);
         return products;
     }
 

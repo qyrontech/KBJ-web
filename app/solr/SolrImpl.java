@@ -3,6 +3,7 @@ package solr;
 import com.typesafe.config.Config;
 import models.Product;
 import models.Product.SolrField;
+import models.ProductsWithNum;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -66,7 +67,7 @@ public class SolrImpl implements SolrI {
     }
 
     @Override
-    public F.Tuple<List<Product>, Long> query(String keyword, String mall, String cate,
+    public ProductsWithNum query(String keyword, String mall, String cate,
                                int start, int rows, String sort, String fq) {
         List<QuerySorter> sorts = new ArrayList<>();
         List<QueryFilter> qfs = new ArrayList<>();
@@ -93,7 +94,7 @@ public class SolrImpl implements SolrI {
     }
 
     @Override
-    public F.Tuple<List<Product>, Long> query(String keyword, int start, int rows,
+    public ProductsWithNum query(String keyword, int start, int rows,
                                               List<QuerySorter> sorters, List<QueryFilter> fqs) {
 
         SolrQuery query = new SolrQuery();
@@ -120,7 +121,7 @@ public class SolrImpl implements SolrI {
     }
 
     @Override
-    public F.Tuple<List<Product>, Long> query(String keyword, int start, int rows, String sorter, String fq) {
+    public ProductsWithNum query(String keyword, int start, int rows, String sorter, String fq) {
        return query(keyword, "", "", start, rows, sorter, fq);
     }
 
@@ -131,9 +132,9 @@ public class SolrImpl implements SolrI {
         query.setQuery(SolrField.skuid + ":" + skuid);
         // find the latest if there is more than one.
         query.addSort(SolrField.date, ORDER.desc);
-        F.Tuple<List<Product>, Long> products = doQuery(PRODUCTS, query);
-        if (products._1.size() > 0) {
-            return products._1.get(0);
+        ProductsWithNum result = doQuery(PRODUCTS, query);
+        if (result.getNumFound() > 0) {
+            return result.getProducts().get(0);
         } else {
             return null;
         }
@@ -161,7 +162,7 @@ public class SolrImpl implements SolrI {
      * @param query
      * @return
      */
-    protected F.Tuple<List<Product>, Long> doQuery(String collection, SolrQuery query) {
+    protected ProductsWithNum doQuery(String collection, SolrQuery query) {
 
         List<Product> products = new ArrayList<>();
         long numFound = 0;
@@ -177,7 +178,7 @@ public class SolrImpl implements SolrI {
             // todo
             products = response.getBeans(Product.class);
 
-            return F.Tuple(products, numFound);
+            return new ProductsWithNum(numFound, products);
 
         } catch(SolrServerException e) {
             e.printStackTrace();
@@ -187,7 +188,7 @@ public class SolrImpl implements SolrI {
             e.printStackTrace();
         }
 
-        return F.Tuple(products, numFound);
+        return new ProductsWithNum(numFound, products);
     }
 
 }

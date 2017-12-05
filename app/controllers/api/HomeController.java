@@ -1,6 +1,7 @@
 package controllers.api;
 
 import models.Product;
+import models.ProductsWithNum;
 import play.Logger;
 import play.libs.F;
 import play.libs.Json;
@@ -39,14 +40,14 @@ public class HomeController extends Controller {
         List<F.Tuple4<String, String, String, String>> filters = new ArrayList<>();
         filters.add(new F.Tuple4("", "price", "10", ""));
 
-        F.Tuple<List<Product>, Long> products = searcher.query(keyword, 0, 10, sorters, filters);
+        ProductsWithNum result = searcher.query(keyword, 0, 10, sorters, filters);
 
-        Logger.debug("-----------solr: " + products._1.size());
-        for (Product product : products._1) {
+        Logger.debug("-----------solr: " + result.getNumFound());
+        for (Product product : result.getProducts()) {
             Logger.debug(product.getSkuid() + " : " + product.getName() + " : " + product.getPrice());
         }
 
-        return ok(Json.toJson(products));
+        return ok(Json.toJson(result));
     }
 
     public Result generalSearch(String keyword, int start, int rows) {
@@ -63,26 +64,26 @@ public class HomeController extends Controller {
         List<F.Tuple4<String, String, String, String>> filters = new ArrayList<>();
         filters.add(new F.Tuple4("", "price", "10", ""));
 
-        F.Tuple<List<Product>, Long> products = searcher.query(keyword, start, rows, sorters, filters);
+        ProductsWithNum result = searcher.query(keyword, start, rows, sorters, filters);
 
-        Logger.debug("-----------solr: " + products._1.size());
-        for (Product product : products._1) {
+        Logger.debug("-----------solr: " + result.getNumFound());
+        for (Product product : result.getProducts()) {
             Logger.debug(product.getSkuid() + " : " + product.getName() + " : " + product.getPrice());
         }
 
-        return ok(Json.toJson(products));
+        return ok(Json.toJson(result));
     }
 
     public Result generalSearch(String keyword, String start, String rows, String sorter, String filter) {
 
-        F.Tuple<List<Product>, Long> products = searcher.query(keyword, Integer.valueOf(start),
+        ProductsWithNum result = searcher.query(keyword, Integer.valueOf(start),
                 Integer.valueOf(rows), sorter, filter);
-        Logger.debug("-----------solr: " + products._1.size());
-        for (Product product : products._1) {
+        Logger.debug("-----------solr: " + result.getNumFound());
+        for (Product product : result.getProducts()) {
             Logger.debug(product.getSkuid() + " : " + product.getName() + " : " + product.getPrice());
         }
 
-        return ok(Json.toJson(products));
+        return ok(Json.toJson(result));
     }
 
 }
