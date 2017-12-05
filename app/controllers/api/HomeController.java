@@ -39,10 +39,10 @@ public class HomeController extends Controller {
         List<F.Tuple4<String, String, String, String>> filters = new ArrayList<>();
         filters.add(new F.Tuple4("", "price", "10", ""));
 
-        List<Product> products = searcher.query(keyword, 0, 10, sorters, filters);
+        F.Tuple<List<Product>, Long> products = searcher.query(keyword, 0, 10, sorters, filters);
 
-        Logger.debug("-----------solr: " + products.size());
-        for (Product product : products) {
+        Logger.debug("-----------solr: " + products._1.size());
+        for (Product product : products._1) {
             Logger.debug(product.getSkuid() + " : " + product.getName() + " : " + product.getPrice());
         }
 
@@ -63,10 +63,10 @@ public class HomeController extends Controller {
         List<F.Tuple4<String, String, String, String>> filters = new ArrayList<>();
         filters.add(new F.Tuple4("", "price", "10", ""));
 
-        List<Product> products = searcher.query(keyword, start, rows, sorters, filters);
+        F.Tuple<List<Product>, Long> products = searcher.query(keyword, start, rows, sorters, filters);
 
-        Logger.debug("-----------solr: " + products.size());
-        for (Product product : products) {
+        Logger.debug("-----------solr: " + products._1.size());
+        for (Product product : products._1) {
             Logger.debug(product.getSkuid() + " : " + product.getName() + " : " + product.getPrice());
         }
 
@@ -75,14 +75,10 @@ public class HomeController extends Controller {
 
     public Result generalSearch(String keyword, String start, String rows, String sorter, String filter) {
 
-        // todo
-        // for test
-        // keyword = "小米（MI）小 米　家";
-
-        List<Product> products = searcher.query(keyword, Integer.valueOf(start),
+        F.Tuple<List<Product>, Long> products = searcher.query(keyword, Integer.valueOf(start),
                 Integer.valueOf(rows), sorter, filter);
-        Logger.debug("-----------solr: " + products.size());
-        for (Product product : products) {
+        Logger.debug("-----------solr: " + products._1.size());
+        for (Product product : products._1) {
             Logger.debug(product.getSkuid() + " : " + product.getName() + " : " + product.getPrice());
         }
 
