@@ -58,12 +58,12 @@ public class KeywordHelper {
                     j++;
                 }
                 sb.append(")");
-
-                if ( i != fromFields.size() - 1) {
-                    sb.append(" OR ");
-                }
-                i++;
             }
+            // connect clauses with OR
+            if ( i != fromFields.size() - 1) {
+                sb.append(" OR ");
+            }
+            i++;
         }
 
 //        Logger.debug("after keyword: " + sb.toString());
